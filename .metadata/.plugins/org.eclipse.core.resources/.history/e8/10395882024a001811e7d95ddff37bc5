@@ -1,0 +1,12 @@
+
+public class Main {
+
+	public static void main(String[] args) {
+		Operation o1 = new Operation("Cocou");
+		Operation o2 = new Operation("Vendredi");
+		Operation o3 = new Operation("Cocou");
+		Operation o4 = new Operation("Cocou");
+		Operation o5 = new Operation("Cocou");
+		
+	}
+}

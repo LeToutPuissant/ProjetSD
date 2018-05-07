@@ -1,0 +1,86 @@
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Bloc {
+
+	int idB;
+	static char sep = '\n';
+	int[] idOps;
+	String ops;
+	String hash; //La chaine résultat sera la concatenation de hash et des opérations
+	String previousHash;
+	
+	public Bloc(int id, int[] idops, String preHash) {
+		idB = id;
+		idOps = idops;
+		previousHash = preHash;
+		hash = calculerHash(this);
+	}
+
+	public int getIdB() {
+		return idB;
+	}
+
+	public void setIdB(int idB) {
+		this.idB = idB;
+	}
+
+	public String getHash() {
+		return hash;
+	}
+
+	public void setHash(String hash) {
+		this.hash = hash;
+	}
+
+	public String getPreviousHash() {
+		return previousHash;
+	}
+
+	public void setPreviousHash(String previousHash) {
+		this.previousHash = previousHash;
+	}
+
+	public void setIdOps(int[] idOps) {
+		this.idOps = idOps;
+	}
+
+	public void setOps(String ops) {
+		this.ops = ops;
+	}
+	
+	public String str() {
+		return idB + ops + previousHash;
+	}
+	
+	public static String calculerHash(Bloc bloc) {
+		if (bloc != null) {
+		      MessageDigest digest = null;
+
+		      try {
+		        digest = MessageDigest.getInstance("SHA-256");
+		      } catch (NoSuchAlgorithmException e) {
+		        return null;
+		      }
+					
+		      String txt = bloc.str();
+		      final byte bytes[] = digest.digest(txt.getBytes());
+		      final StringBuilder builder = new StringBuilder();
+					
+		      for (final byte b : bytes) {
+		        String hex = Integer.toHexString(0xff & b);
+
+		        if (hex.length() == 1) {
+		          builder.append('0');
+		        }
+						
+		        builder.append(hex);
+		      }
+					
+		      return builder.toString();
+		    }
+			  
+		    return null;
+	}
+	
+}

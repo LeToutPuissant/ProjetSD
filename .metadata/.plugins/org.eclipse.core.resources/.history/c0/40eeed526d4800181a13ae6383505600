@@ -1,0 +1,5 @@
+
+public abstract class Operation {
+	
+	static int incld;
+}

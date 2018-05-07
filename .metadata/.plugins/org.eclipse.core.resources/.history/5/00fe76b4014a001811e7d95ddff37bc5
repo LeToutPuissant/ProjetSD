@@ -1,0 +1,36 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class Blockchain {
+
+	private List<Bloc> blocs;
+	
+	public Blockchain() {
+		blocs = new ArrayList<>();
+	}
+	
+	public Bloc dernierBloc() {
+		return blocs.get(blocs.size() - 1);
+	}
+	
+	public Bloc nouveauBloc(Operation[] listeOps) {
+		Bloc latestBloc = dernierBloc();
+		return new Bloc(latestBloc.getIdB() + 1, listeOps, latestBloc.getHash());
+	}
+	
+	public void ajoutBloc(Bloc b) {
+		blocs.add(b);
+	}
+	
+	public void afficheBlocchain() {
+		for(int i = 0; i < blocs.size(); i++) {
+			System.out.println("Bloc " + i + " :");
+			System.out.println("	Hash : " + blocs.get(i).getHash());
+			System.out.println("	Previous Hash : " + blocs.get(i).getPreviousHash());
+			String[] listeOp = blocs.get(i).getOp();
+			for(int j = 0; j < listeOp.length; j++) {
+				System.out.println("		Opération " + j + " :" + listeOp[j]);
+			}
+		}
+	}
+}
