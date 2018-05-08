@@ -1,8 +1,6 @@
 import java.io.Serializable;
 
 public class Operation implements Serializable{
-	
-	private static int incld;
 	private int idO;
 	private String op;
 	
