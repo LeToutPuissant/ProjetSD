@@ -3,8 +3,8 @@ import java.security.NoSuchAlgorithmException;
 
 public class Bloc {
 
-	int idB;
-	static char sep = '\n';
+	private int idB;
+	private static char sep = '\n';
 	private Operation[] op;
 	private String hash; //La chaine résultat sera la concatenation de hash et des opérations
 	private String previousHash;

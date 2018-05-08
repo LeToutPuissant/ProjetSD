@@ -21,7 +21,7 @@ public class Blockchain {
 	public Bloc nouveauBloc(Operation[] listeOps) {
 		Bloc latestBloc = dernierBloc();
 		Bloc add;
-		//Si le bloc ajouté est le premier du blockchain
+		//Si le bloc a ajouté est le premier du blockchain
 		if(latestBloc == null) {
 			add = new Bloc(0, listeOps, null);
 		}
@@ -37,12 +37,12 @@ public class Blockchain {
 	
 	public void afficheBlockchain() {
 		for(int i = 0; i < blocs.size(); i++) {
-			System.out.println("Bloc " + blocs.get(i).idB + " :");
+			System.out.println("Bloc " + blocs.get(i).getIdB() + " :");
 			System.out.println("	Hash : " + blocs.get(i).getHash());
 			System.out.println("	Previous Hash : " + blocs.get(i).getPreviousHash());
 			Operation[] listeOp = blocs.get(i).getOp();
 			for(int j = 0; j < listeOp.length; j++) {
-				System.out.println("		Opération " + j + " :" + listeOp[j].op);
+				System.out.println("		Opération " + j + " :" + listeOp[j].getOp());
 
 			}
 		}

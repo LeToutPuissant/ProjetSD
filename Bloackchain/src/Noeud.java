@@ -22,4 +22,7 @@ public interface Noeud extends Remote{
 	
 	public void ajouterServeur(Adresse ad)
 			throws RemoteException;
+	
+	public void envoieOperation(Operation op)
+			throws RemoteException;
 }

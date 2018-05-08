@@ -9,7 +9,7 @@ public class Client{
 		}
 		try{
 			Noeud b = (Noeud) Naming.lookup("rmi://" + args[0] + ":" + args[1] + "/Message") ;
-			b.propMessage("Message");
+			b.envoieOperation(new Operation(1, "Operation 1"));
 			System.out.println("Le client recoit : " + b.messageDistant()) ; 
 		}
 		catch (NotBoundException re) { System.out.println(re) ; }

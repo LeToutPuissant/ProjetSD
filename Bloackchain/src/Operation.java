@@ -1,23 +1,38 @@
+import java.io.Serializable;
 
-public class Operation {
+public class Operation implements Serializable{
 	
-	static int incld;
-	int idO;
-	String op;
+	private static int incld;
+	private int idO;
+	private String op;
 	
-	public Operation(String op) {
+	public Operation(int idO, String op) {
+		this.idO = idO;
 		this.op = op;
 	}
 	
-	//public String toString();
-	
 	public boolean equals(Operation o) {
 		boolean equal = false;
-		if(this.idO == o.idO && this.toString() == o.toString()) {
+		if(this.idO == o.getIdO() && this.toString().compareTo(o.toString()) == 0) {
 			equal = true;
 		}
 		
 		return equal;
 	}
+
+	public static int getIncld() {
+		return incld;
+	}
+
+	public int getIdO() {
+		return idO;
+	}
+
+	public String getOp() {
+		return op;
+	}
 	
+	public String toString(){
+		return op;
+	}
 }
