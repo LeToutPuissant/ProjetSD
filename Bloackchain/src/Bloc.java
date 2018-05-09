@@ -4,7 +4,7 @@ import java.security.NoSuchAlgorithmException;
 public class Bloc {
 
 	private int idB;
-	private static char sep = '\n';
+	private static final String SEP = "\n";
 	private Operation[] op;
 	private String hash; //La chaine résultat sera la concatenation de hash et des opérations
 	private String previousHash;
@@ -49,10 +49,10 @@ public class Bloc {
 	}
 	
 	public String str() {
-		String ops = "";
+		String ops = op[0].toString();
 		//On concatène les opérations en une seule String
-		for(int i = 0; i < op.length; i++) {
-			ops += "/n" + op[i];
+		for(int i = 1; i < op.length; i++) {
+			ops += SEP + op[i];
 		}
 		return idB + ops + previousHash;
 	}

@@ -17,11 +17,7 @@ public class Operation implements Serializable{
 		
 		return equal;
 	}
-
-	public static int getIncld() {
-		return incld;
-	}
-
+	
 	public int getIdO() {
 		return idO;
 	}

@@ -66,6 +66,18 @@ public class NoeudImpl
 		if(estAdresseInconnue(ad)){
 			carnetAdresse.add(ad);
 			System.out.println("Adresse ajoute : " + ad.getIp() + ":" + ad.getPort());
+			
+			// Envoie toutes les opération du buffer.
+			System.out.println("Envoie des opérations du buffer au nouveau contacte");
+			try{
+				Noeud b = (Noeud) Naming.lookup("rmi://" + ad.getIp() + ":" + ad.getPort() + "/Message") ;
+				for(Operation op : bufferOp){
+					b.receptionOperation(op);
+				}
+			}
+			catch (NotBoundException re) { System.out.println(re) ; }
+			catch (RemoteException re) { System.out.println(re) ; }
+			catch (MalformedURLException e) { System.out.println(e) ; }
 		}
 		else{
 			System.out.println("Adresse : " + ad.getIp() + ":" + ad.getPort() + " est deja connue");
@@ -145,7 +157,7 @@ public class NoeudImpl
 				Noeud b = (Noeud) Naming.lookup(
 						"rmi://" + carnetAdresse.get(i).getIp() 
 						+ ":" + carnetAdresse.get(i).getPort() + "/Message");
-				b.envoieOperation(op);
+				b.receptionOperation(op);
 			}
 			catch (NotBoundException re) { System.out.println(re) ; }
 			catch (RemoteException re) { System.out.println(re) ; }
@@ -157,33 +169,33 @@ public class NoeudImpl
 	/* Fonction du Serveur */
 	/***********************/
 
-	public String messageDistant()
+	public synchronized String messageDistant()
 		throws RemoteException{ 
 		return("Ici le serveur : ack !");
     }
 	
-	public void envoieAdresse(Adresse ad)
+	public synchronized void envoieAdresse(Adresse ad)
 			throws RemoteException{
 		ajouterAdresse(ad);
 	}
 	
-	public void envoieMessage(String m)
+	public synchronized void envoieMessage(String m)
 			throws RemoteException{
 		System.out.println(m);
 	}
 	
-	public void propMessage(String m)
+	public synchronized void propMessage(String m)
 			throws RemoteException{
 		System.out.println(m);
 		propagerMessage(m);
 	}
 	
-	public void ajouterServeur(Adresse ad)
+	public synchronized void ajouterServeur(Adresse ad)
 			throws RemoteException{
 		ajouterAdresse(ad);
 	}
 	
-	public void envoieOperation(Operation op)
+	public synchronized void receptionOperation(Operation op)
 			throws RemoteException{
 		ajouterOperation(op);
 	}

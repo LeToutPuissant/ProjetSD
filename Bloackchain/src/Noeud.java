@@ -20,9 +20,19 @@ public interface Noeud extends Remote{
 	public void propMessage(String m)
 			throws RemoteException;
 	
+	/**
+	 * Ajoute l'adresse du serveur en paramètre au noeud
+	 * @param ad Adresse du serveur
+	 * @throws RemoteException
+	 */
 	public void ajouterServeur(Adresse ad)
 			throws RemoteException;
 	
-	public void envoieOperation(Operation op)
+	/**
+	 * Envoie une opération au noeud
+	 * @param op Opération à envoyer
+	 * @throws RemoteException
+	 */
+	public void receptionOperation(Operation op)
 			throws RemoteException;
 }
