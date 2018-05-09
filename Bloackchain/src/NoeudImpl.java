@@ -24,6 +24,8 @@ public class NoeudImpl
 	/** Buffer des opération en attente de confirmation */
 	private Vector<Operation> bufferOp;
 	
+	private Blockchain chaine;
+	
 	public NoeudImpl (int id, String ip, String port)
 		throws RemoteException{
 			super();
@@ -31,6 +33,7 @@ public class NoeudImpl
 			this.adresse = new Adresse(ip,port);
 			this.carnetAdresse = new Vector<Adresse>();
 			this.bufferOp = new Vector<Operation>();
+			this.chaine = new Blockchain();
 	}
 	
 	/**
@@ -165,6 +168,56 @@ public class NoeudImpl
 		}
 	}
 	
+	public void ajouterBloc(Bloc bloc){
+		//Vérification du bloc
+		// --> TODO
+		chaine.ajoutBloc(bloc);
+		System.out.println("Ajout du bloc : " + bloc.getIdB());
+		
+	}
+	
+	public void propagerBloc(Bloc bloc){
+		for(int i=0; i<carnetAdresse.size(); i++){
+			try{
+				Noeud b = (Noeud) Naming.lookup(
+						"rmi://" + carnetAdresse.get(i).getIp() 
+						+ ":" + carnetAdresse.get(i).getPort() + "/Message");
+				b.receptionBloc(bloc);
+			}
+			catch (NotBoundException re) { System.out.println(re) ; }
+			catch (RemoteException re) { System.out.println(re) ; }
+			catch (MalformedURLException e) { System.out.println(e) ; }
+		}
+	}
+	
+	/*************/
+	/* Accesseur */
+	/*************/
+	
+	public int getId() {
+		return id;
+	}
+
+	public Adresse getAdresse() {
+		return adresse;
+	}
+
+	public Vector<Adresse> getCarnetAdresse() {
+		return carnetAdresse;
+	}
+
+	public int getIncIdOp() {
+		return incIdOp;
+	}
+
+	public Vector<Operation> getBufferOp() {
+		return bufferOp;
+	}
+
+	public Blockchain getChaine() {
+		return chaine;
+	}
+
 	/***********************/
 	/* Fonction du Serveur */
 	/***********************/
@@ -198,5 +251,10 @@ public class NoeudImpl
 	public synchronized void receptionOperation(Operation op)
 			throws RemoteException{
 		ajouterOperation(op);
+	}
+	
+	public synchronized void receptionBloc(Bloc bloc)
+			throws RemoteException{
+		ajouterBloc(bloc);
 	}
 }

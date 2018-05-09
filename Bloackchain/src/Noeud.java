@@ -35,4 +35,12 @@ public interface Noeud extends Remote{
 	 */
 	public void receptionOperation(Operation op)
 			throws RemoteException;
+	
+	/**
+	 * Envoie un bloc au noeud
+	 * @param bloc Bloc à envoyer
+	 * @throws RemoteException
+	 */
+	public void receptionBloc(Bloc bloc)
+			throws RemoteException;
 }
