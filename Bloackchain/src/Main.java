@@ -2,11 +2,11 @@
 public class Main {
 
 	public static void main(String[] args) {
-		Operation o1 = new Operation("Cocou");
-		Operation o2 = new Operation("Vendredi");
-		Operation o3 = new Operation("Sylvain");
-		Operation o4 = new Operation("Perdu");
-		Operation o5 = new Operation("Dead Cells");
+		Operation o1 = new Operation(1, "Cocou");
+		Operation o2 = new Operation(2, "Vendredi");
+		Operation o3 = new Operation(3, "Sylvain");
+		Operation o4 = new Operation(4, "Perdu");
+		Operation o5 = new Operation(5, "Dead Cells");
 		
 		Operation[] listeOp1 = new Operation[3];
 		listeOp1[0] = o1;
@@ -23,5 +23,12 @@ public class Main {
 		
 		bc.afficheBlockchain();
 		
+		if(bc.isBlockChainValid()) {
+			System.out.println("Valide");
+		}
+		else {
+			System.out.println("Non valide");
+		}
+			
 	}
 }

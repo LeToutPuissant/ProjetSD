@@ -18,6 +18,68 @@ public class Blockchain {
 		}
 	}
 	
+	//Le premier bloc est valide
+	public boolean isFirstBlockValid() {
+		Bloc firstBlock = blocs.get(0);
+
+		  if (firstBlock.getIdB() != 0) {
+		    return false;
+		  }
+
+		  if (firstBlock.getPreviousHash() != null) {
+		    return false;
+		  }
+
+		  if (firstBlock.getHash() == null || 
+		      !Bloc.calculerHash(firstBlock).equals(firstBlock.getHash())) {
+		    return false;
+		  }
+
+		  return true;
+	}
+	
+	//Un nouveau bloc est valide avec le bloc précédent de la Blockchain
+	public boolean isValidNewBlock(Bloc newBlock, Bloc previousBlock) {
+	    if (newBlock != null  &&  previousBlock != null) {
+	      if (previousBlock.getIdB() + 1 != newBlock.getIdB()) {
+	        return false;
+	      }
+
+	      if (newBlock.getPreviousHash() == null  ||  
+		    !newBlock.getPreviousHash().equals(previousBlock.getHash())) {
+	        return false;
+	      }
+
+	      if (newBlock.getHash() == null  ||  
+		    !Bloc.calculerHash(newBlock).equals(newBlock.getHash())) {
+	        return false;
+	      }
+
+	      return true;
+	    }
+
+	    return false;
+	  }
+
+	//La Blockchain est valide
+	  public boolean isBlockChainValid() {
+	    if (!isFirstBlockValid()) {
+	      return false;
+	    }
+
+	    for (int i = 1; i < blocs.size(); i++) {
+	      Bloc currentBlock = blocs.get(i);
+	      Bloc previousBlock = blocs.get(i - 1);
+
+	      if (!isValidNewBlock(currentBlock, previousBlock)) {
+	        return false;
+	      }
+	    }
+
+	    return true;
+	  }
+
+	
 	public Bloc nouveauBloc(Operation[] listeOps) {
 		Bloc latestBloc = dernierBloc();
 		Bloc add;
