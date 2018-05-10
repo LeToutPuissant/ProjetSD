@@ -74,9 +74,14 @@ public class NoeudImpl
 			if(!bufferOp.isEmpty()){
 				System.out.println("Envoie des opérations du buffer au nouveau contacte");
 				try{
-					Noeud b = (Noeud) Naming.lookup("rmi://" + ad.getIp() + ":" + ad.getPort() + "/Message") ;
+					Noeud b = (Noeud) Naming.lookup("rmi://" + ad.getIp() + ":" + ad.getPort() + "/Message");
+					// Transfert tous ses opérations à l'autre serveur
 					for(Operation op : bufferOp){
 						b.receptionOperation(op);
+					}
+					// Transfert Tous ses blocs à l'autre seveur
+					for(Bloc bloc : chaine.getBlocs()){ //A améliorer
+						b.receptionBloc(bloc);
 					}
 				}
 				catch (NotBoundException re) { System.out.println(re) ; }
