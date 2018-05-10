@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class Bloc {
+public class Bloc implements Serializable{
 
 	private int idB;
 	private static final String SEP = "\n";
@@ -55,6 +56,10 @@ public class Bloc {
 			ops += SEP + op[i];
 		}
 		return idB + ops + previousHash;
+	}
+	
+	public String toString(){
+		return str();
 	}
 	
 	public static String calculerHash(Bloc bloc) {

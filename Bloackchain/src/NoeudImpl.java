@@ -71,16 +71,18 @@ public class NoeudImpl
 			System.out.println("Adresse ajoute : " + ad.getIp() + ":" + ad.getPort());
 			
 			// Envoie toutes les opération du buffer.
-			System.out.println("Envoie des opérations du buffer au nouveau contacte");
-			try{
-				Noeud b = (Noeud) Naming.lookup("rmi://" + ad.getIp() + ":" + ad.getPort() + "/Message") ;
-				for(Operation op : bufferOp){
-					b.receptionOperation(op);
+			if(!bufferOp.isEmpty()){
+				System.out.println("Envoie des opérations du buffer au nouveau contacte");
+				try{
+					Noeud b = (Noeud) Naming.lookup("rmi://" + ad.getIp() + ":" + ad.getPort() + "/Message") ;
+					for(Operation op : bufferOp){
+						b.receptionOperation(op);
+					}
 				}
+				catch (NotBoundException re) { System.out.println(re) ; }
+				catch (RemoteException re) { System.out.println(re) ; }
+				catch (MalformedURLException e) { System.out.println(e) ; }
 			}
-			catch (NotBoundException re) { System.out.println(re) ; }
-			catch (RemoteException re) { System.out.println(re) ; }
-			catch (MalformedURLException e) { System.out.println(e) ; }
 		}
 		else{
 			System.out.println("Adresse : " + ad.getIp() + ":" + ad.getPort() + " est deja connue");
@@ -168,12 +170,17 @@ public class NoeudImpl
 		}
 	}
 	
-	public void ajouterBloc(Bloc bloc){
-		//Vérification du bloc
-		// --> TODO
-		chaine.ajoutBloc(bloc);
-		System.out.println("Ajout du bloc : " + bloc.getIdB());
-		
+	public synchronized boolean ajouterBloc(Bloc bloc){
+		//Vérification si le nouveau bloc est valide (si il est déjà connue alors il est invalide)
+		if(chaine.isValidNewBlock(bloc, chaine.dernierBloc())){
+			chaine.ajoutBloc(bloc);
+			System.out.println("Ajout du bloc : " + bloc.getIdB());
+			return true;
+		}
+		else{
+			System.out.println("Le noeud n'est pas valide ou est deja connue");
+		}
+		return false;
 	}
 	
 	public void propagerBloc(Bloc bloc){
@@ -253,8 +260,12 @@ public class NoeudImpl
 		ajouterOperation(op);
 	}
 	
-	public synchronized void receptionBloc(Bloc bloc)
+	public void receptionBloc(Bloc bloc)
 			throws RemoteException{
-		ajouterBloc(bloc);
+		// Si le bloc a été rajouté alors on propage
+		if(ajouterBloc(bloc)){
+			//Propage le bloc au voisin
+			propagerBloc(bloc);
+		}
 	}
 }

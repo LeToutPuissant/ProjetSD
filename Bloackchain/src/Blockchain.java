@@ -57,6 +57,10 @@ public class Blockchain {
 
 	      return true;
 	    }
+	    // Si c'est le premier bloc de la chaine (donc le précédent est null)
+	    if(newBlock != null  &&  previousBlock == null){
+	    	return true;
+	    }
 
 	    return false;
 	  }
