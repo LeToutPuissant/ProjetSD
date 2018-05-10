@@ -121,19 +121,19 @@ public class NoeudImpl
 	 * Ajout l'opération au buffer a condition qu'elle n'existe pas déjà
 	 * @param op Opération à ajotuer
 	 */
-	public void ajouterOperation(Operation op){
+	public synchronized boolean ajouterOperation(Operation op){
 		if(estOperationInconnue(op)){
 			if(op.getIdO() > incIdOp){
 				incIdOp = op.getIdO()+1;
 			}
 			bufferOp.add(op);
 			System.out.println("Operation ajoute : " + op);
-			propagerOperation(op);
-			System.out.println("Propagation");
+			return true;
 		}
 		else{
 			System.out.println("Operation : " + op + " est deja connue");
 		}
+		return false;
 	}
 	
 	/**
@@ -175,6 +175,8 @@ public class NoeudImpl
 		if(chaine.isValidNewBlock(bloc, chaine.dernierBloc())){
 			chaine.ajoutBloc(bloc);
 			System.out.println("Ajout du bloc : " + bloc.getIdB());
+			System.out.println("Elimination des opérations presente dans le bloc");
+			eliminerOperation(bloc);
 			return true;
 		}
 		else{
@@ -195,6 +197,31 @@ public class NoeudImpl
 			catch (RemoteException re) { System.out.println(re) ; }
 			catch (MalformedURLException e) { System.out.println(e) ; }
 		}
+	}
+	
+	/**
+	 * Elimine les opérations du buffer présent dans le bloc
+	 * @param b Bloc
+	 */
+	public void eliminerOperation(Bloc b){
+		System.out.println(bufferOp.toString() + "\n");
+		
+		//Vérifie pour chaque opération présent dans le bloc
+		for(int i=0; i<b.getOp().length; i++){
+			// Et pour chaque opération du Buffer
+			for(int j=0; j<bufferOp.size(); j++){
+				//Si deux opérations correspondent
+				if(b.getOp()[i].equals(bufferOp.get(j))){
+					System.out.println("Suppremession : " + bufferOp.get(j).getIdO());
+					// Supprime 
+					bufferOp.remove(j);
+					// Decremente de 1 car la taille vien de diminuer de 1
+					j--;
+				}
+			}
+		}
+		
+		System.out.println("\n" + bufferOp.toString());
 	}
 	
 	/*************/
@@ -255,9 +282,14 @@ public class NoeudImpl
 		ajouterAdresse(ad);
 	}
 	
-	public synchronized void receptionOperation(Operation op)
+	public void receptionOperation(Operation op)
 			throws RemoteException{
-		ajouterOperation(op);
+		if(ajouterOperation(op)){
+			// Propagation de l'operation
+			System.out.println("Propagation de l'operation : " + op.getIdO());
+			this.propagerOperation(op);
+		}
+		
 	}
 	
 	public void receptionBloc(Bloc bloc)
@@ -267,5 +299,15 @@ public class NoeudImpl
 			//Propage le bloc au voisin
 			propagerBloc(bloc);
 		}
+	}
+	
+	/**
+	 * Transfere tous les blocs de la chaine vers le client
+	 * @return tableau de bloc
+	 * @throws RemoteException
+	 */
+	public Bloc[] demanderBlocs()
+			throws RemoteException{
+		return chaine.getArrayBlocs();
 	}
 }

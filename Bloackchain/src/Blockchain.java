@@ -101,6 +101,10 @@ public class Blockchain {
 		blocs.add(b);
 	}
 	
+	public Bloc[] getArrayBlocs(){
+		return (Bloc[])blocs.toArray();
+	}
+	
 	public void afficheBlockchain() {
 		for(int i = 0; i < blocs.size(); i++) {
 			System.out.println("Bloc " + blocs.get(i).getIdB() + " :");

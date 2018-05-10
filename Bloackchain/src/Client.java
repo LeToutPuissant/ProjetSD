@@ -29,11 +29,27 @@ public class Client{
 			Bloc b1 = new Bloc(0,listeOp1, null);
 			Bloc b2 = new Bloc(1,listeOp2, b1.getHash());
 			
+			// Envoie des opérations qui devront être supprimer
+			b.receptionOperation(o1);
+			b.receptionOperation(o3);
+			b.receptionOperation(o4);
+			
+			// Envoie des opéarations qui ne devront pas être supprimé
+			b.receptionOperation(new Operation(6, "Ne me supprime pas"));
+			
+			// Fait dormir le proc 60 sec
+			try{
+				TimeUnit.SECONDS.sleep(30);
+			}
+			catch(Exception e){
+				System.out.println(e);
+			}
+			
 			b.receptionBloc(b1);
 			
 			// Fait dormir le proc 60 sec
-			/*try{
-				TimeUnit.SECONDS.sleep(60);
+			try{
+				TimeUnit.SECONDS.sleep(30);
 			}
 			catch(Exception e){
 				System.out.println(e);
@@ -44,13 +60,13 @@ public class Client{
 			
 			// Fait dormir le proc 60 sec
 			try{
-				TimeUnit.SECONDS.sleep(60);
+				TimeUnit.SECONDS.sleep(30);
 			}
 			catch(Exception e){
 				System.out.println(e);
 			}
 			
-			b.receptionBloc(b2);*/
+			b.receptionBloc(b2);
 			
 			System.out.println("fin") ; 
 		}

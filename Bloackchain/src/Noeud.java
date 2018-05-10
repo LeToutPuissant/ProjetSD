@@ -43,4 +43,12 @@ public interface Noeud extends Remote{
 	 */
 	public void receptionBloc(Bloc bloc)
 			throws RemoteException;
+	
+	/**
+	 * Transfere une tous les blocs de la chaine vers le client
+	 * @return tableau de bloc
+	 * @throws RemoteException
+	 */
+	public Bloc[] demanderBlocs()
+			throws RemoteException;
 }
