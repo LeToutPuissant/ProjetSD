@@ -110,18 +110,6 @@ public class NoeudImpl
 		catch (MalformedURLException e) { System.out.println(e) ; }
 	}
 	
-	public void propagerMessage(String m){
-		for(Adresse ad : carnetAdresse){
-			try{
-				Noeud b = (Noeud) Naming.lookup("rmi://" + ad.getIp() + ":" + ad.getPort() + "/Message") ;
-				b.envoieMessage(m);
-			}
-			catch (NotBoundException re) { System.out.println(re) ; }
-			catch (RemoteException re) { System.out.println(re) ; }
-			catch (MalformedURLException e) { System.out.println(e) ; }
-		}
-	}
-	
 	/**
 	 * Ajout l'opération au buffer a condition qu'elle n'existe pas déjà
 	 * @param op Opération à ajotuer
@@ -275,13 +263,7 @@ public class NoeudImpl
 			throws RemoteException{
 		System.out.println(m);
 	}
-	
-	public synchronized void propMessage(String m)
-			throws RemoteException{
-		System.out.println(m);
-		propagerMessage(m);
-	}
-	
+
 	public synchronized void ajouterServeur(Adresse ad)
 			throws RemoteException{
 		ajouterAdresse(ad);
