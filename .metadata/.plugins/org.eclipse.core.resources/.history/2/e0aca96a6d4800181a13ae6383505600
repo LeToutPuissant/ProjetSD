@@ -1,0 +1,8 @@
+
+public abstract class Operation {
+	
+	static int incld;
+	int idO;
+	
+	String toString
+}

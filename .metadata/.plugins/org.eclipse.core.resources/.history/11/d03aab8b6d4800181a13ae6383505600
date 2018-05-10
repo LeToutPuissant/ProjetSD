@@ -1,0 +1,13 @@
+
+public abstract class Operation {
+	
+	static int incld;
+	int idO;
+	
+	public abstract String toString();
+	
+	public boolean equals() {
+		
+	}
+	
+}
