@@ -2,7 +2,7 @@
 public class Main {
 
 	public static void main(String[] args) {
-		Operation o1 = new Operation(1, "Cocou");
+		/*Operation o1 = new Operation(1, "Cocou");
 		Operation o2 = new Operation(2, "Vendredi");
 		Operation o3 = new Operation(3, "Sylvain");
 		Operation o4 = new Operation(4, "Perdu");
@@ -28,7 +28,26 @@ public class Main {
 		}
 		else {
 			System.out.println("Non valide");
-		}
+		}*/
+		
+		String message = "message";
+		Cles paireCles = new Cles();
+		String messageDecrypte;
+		byte[] messageCrypte;
+		
+		// prive -> public
+		messageCrypte = Cles.chiffrement(message, paireCles.getClePrive());
+		
+		messageDecrypte = Cles.dechiffrement(messageCrypte, paireCles.getClePublic());
+		
+		System.out.println("Message identique ? " + message.equals(messageDecrypte));
+		
+		//public -> prive
+		messageCrypte = Cles.chiffrement(message, paireCles.getClePublic());
+		
+		messageDecrypte = Cles.dechiffrement(messageCrypte, paireCles.getClePrive());
+		
+		System.out.println("Message identique ? " + message.equals(messageDecrypte));
 			
 	}
 }
