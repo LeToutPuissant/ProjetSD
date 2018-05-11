@@ -7,10 +7,10 @@ public class Bloc implements Serializable{
 	private int idB;
 	private static final String SEP = "\n";
 	private Operation[] op;
-	private String hash; //La chaine résultat sera la concatenation de hash et des opérations
-	private String previousHash;
+	private byte[] hash; //La chaine résultat sera la concatenation de hash et des opérations
+	private byte[] previousHash;
 	
-	public Bloc(int id, Operation[] op, String preHash) {
+	public Bloc(int id, Operation[] op, byte[] preHash) {
 		idB = id;
 		this.op = op;
 		previousHash = preHash;
@@ -25,19 +25,19 @@ public class Bloc implements Serializable{
 		this.idB = idB;
 	}
 
-	public String getHash() {
+	public byte[] getHash() {
 		return hash;
 	}
 
-	public void setHash(String hash) {
+	public void setHash(byte[] hash) {
 		this.hash = hash;
 	}
 
-	public String getPreviousHash() {
+	public byte[] getPreviousHash() {
 		return previousHash;
 	}
 
-	public void setPreviousHash(String previousHash) {
+	public void setPreviousHash(byte[] previousHash) {
 		this.previousHash = previousHash;
 	}
 
@@ -62,7 +62,7 @@ public class Bloc implements Serializable{
 		return str();
 	}
 	
-	public static String calculerHash(Bloc bloc) {
+	public static byte[] calculerHash(Bloc bloc) {
 		if (bloc != null) {
 		      MessageDigest digest = null;
 
@@ -86,7 +86,7 @@ public class Bloc implements Serializable{
 		        builder.append(hex);
 		      }
 					
-		      return builder.toString();
+		      return builder.toString().getBytes();
 		    }
 			  
 		    return null;
