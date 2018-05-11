@@ -1,9 +1,11 @@
 import java.rmi.server.UnicastRemoteObject ;
+import java.util.HashMap;
 import java.util.Vector;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
-import java.rmi.RemoteException ;
+import java.rmi.RemoteException;
+import java.security.PublicKey;
 
 public class NoeudImpl 
 	extends UnicastRemoteObject
@@ -24,7 +26,14 @@ public class NoeudImpl
 	/** Buffer des opération en attente de confirmation */
 	private Vector<Operation> bufferOp;
 	
+	/** Chaine de bloc */
 	private Blockchain chaine;
+	
+	/** Tableau associatif d'id et de clé public */
+	private HashMap<Integer, PublicKey> tabClePublic;
+	
+	/** Paire de clé */
+	private Cles paireCles;
 	
 	public NoeudImpl (int id, String ip, String port)
 		throws RemoteException{
@@ -34,6 +43,8 @@ public class NoeudImpl
 			this.carnetAdresse = new Vector<Adresse>();
 			this.bufferOp = new Vector<Operation>();
 			this.chaine = new Blockchain();
+			this.tabClePublic = new HashMap<Integer, PublicKey>();
+			this.paireCles = new Cles();
 	}
 	
 	/**
