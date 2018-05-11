@@ -9,34 +9,12 @@ public class Client{
 			System.exit(0) ;
 		}
 		try{
-			Operation o1 = new Operation(1, "Cocou");
-			Operation o2 = new Operation(2, "Vendredi");
-			Operation o3 = new Operation(3, "Sylvain");
-			Operation o4 = new Operation(4, "Perdu");
-			Operation o5 = new Operation(5, "Dead Cells");
-			
-			Operation[] listeOp1 = new Operation[3];
-			listeOp1[0] = o1;
-			listeOp1[1] = o2;
-			listeOp1[2] = o3;
-			
-			Operation[] listeOp2 = new Operation[2];
-			listeOp2[0] = o4;
-			listeOp2[1] = o5;
-			
-			
+			int id = 5;
+			//Cles paire = new Cles();
 			Noeud b = (Noeud) Naming.lookup("rmi://" + args[0] + ":" + args[1] + "/Message") ;
-			Bloc b1 = new Bloc(0,listeOp1, null);
-			Bloc b2 = new Bloc(1,listeOp2, b1.getHash());
 			
-			// Envoie des opérations qui devront être supprimer
-			b.receptionOperation(o1);
-			b.receptionOperation(o3);
-			b.receptionOperation(o4);
-			
-			// Envoie des opéarations qui ne devront pas être supprimé
-			b.receptionOperation(new Operation(6, "Ne me supprime pas"));
-			
+			// Envoie d'une clé inconnue
+			//b.receptionCle(id, paire.getClePublic());
 			// Fait dormir le proc 60 sec
 			try{
 				TimeUnit.SECONDS.sleep(30);
@@ -45,7 +23,8 @@ public class Client{
 				System.out.println(e);
 			}
 			
-			b.receptionBloc(b1);
+			//Envoie d'une clé inconnue
+			//b.receptionCle(id, paire.getClePublic());
 			
 			// Fait dormir le proc 60 sec
 			try{
@@ -56,7 +35,7 @@ public class Client{
 			}
 			
 			//Renvoie le bloc b1 qui ne devrait pas être stoqué
-			b.receptionBloc(b1);
+			//b.receptionCle(id, paire.getClePublic());
 			
 			// Fait dormir le proc 60 sec
 			try{
@@ -66,7 +45,7 @@ public class Client{
 				System.out.println(e);
 			}
 			
-			b.receptionBloc(b2);
+			//b.receptionCle(10,new Cles().getClePublic());
 			
 			System.out.println("fin") ; 
 		}

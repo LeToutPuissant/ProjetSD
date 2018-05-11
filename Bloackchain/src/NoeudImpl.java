@@ -228,6 +228,52 @@ public class NoeudImpl
 		System.out.println("\n" + bufferOp.toString());
 	}
 	
+	/**
+	 * Ajoute la clé
+	 * @param id Id du serveur
+	 * @param c Clé du serveur
+	 * @return si la clé a été ajouté
+	 */
+	public synchronized boolean ajouterCle(int id, PublicKey c){
+		if(estCleInconnue(id)){
+			tabClePublic.put(id, c);
+			System.out.println("La clé du serveur " + id + " est ajoute");
+			return true;
+		}
+		else{
+			System.out.println("L'id est déja connue");
+		}
+		return false;
+	}
+	
+	/**
+	 * Si l'identifiant est déja associé à une valeur
+	 * @param id Id associé au serveur
+	 * @return si l'id est deja inconnue alors true sinon false
+	 */
+	public boolean estCleInconnue(int id){
+		return !tabClePublic.containsKey(id);
+	}
+	
+	/**
+	 * Propage la clé aux voisins
+	 * @param id Id du serveur
+	 * @param c Clé public du serveur
+	 */
+	public void propagationCle(int id, PublicKey c){
+		for(int i=0; i<carnetAdresse.size(); i++){
+			try{
+				Noeud b = (Noeud) Naming.lookup(
+						"rmi://" + carnetAdresse.get(i).getIp() 
+						+ ":" + carnetAdresse.get(i).getPort() + "/Message");
+				b.receptionCle(id, c);
+			}
+			catch (NotBoundException re) { System.out.println(re) ; }
+			catch (RemoteException re) { System.out.println(re) ; }
+			catch (MalformedURLException e) { System.out.println(e) ; }
+		}
+	}
+	
 	/*************/
 	/* Accesseur */
 	/*************/
@@ -307,5 +353,16 @@ public class NoeudImpl
 	public Bloc[] demanderBlocs()
 			throws RemoteException{
 		return chaine.getArrayBlocs();
+	}
+	
+	/**
+	 * Envoie la clé public et l'id associé à cette clé
+	 * @param id Id du serveur
+	 * @param c Clé public
+	 * @throws RemoteException
+	 */
+	public void receptionCle(int id, PublicKey c)
+			throws RemoteException{
+		
 	}
 }
