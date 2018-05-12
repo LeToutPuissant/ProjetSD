@@ -92,15 +92,15 @@ public class Blockchain {
 	  }
 
 	
-	public Bloc nouveauBloc(Operation[] listeOps) {
+	public Bloc nouveauBloc(Operation[] listeOps, int idCreateur) {
 		Bloc latestBloc = dernierBloc();
 		Bloc add;
 		//Si le bloc a ajouté est le premier du blockchain
 		if(latestBloc == null) {
-			add = new Bloc(0, listeOps, null);
+			add = new Bloc(0, listeOps, null, idCreateur);
 		}
 		else {
-			add = new Bloc(latestBloc.getIdB() + 1, listeOps, latestBloc.getHash());
+			add = new Bloc(latestBloc.getIdB() + 1, listeOps, latestBloc.getHash(), idCreateur);
 		}
 		return add; 
 	}

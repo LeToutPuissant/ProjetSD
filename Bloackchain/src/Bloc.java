@@ -9,12 +9,14 @@ public class Bloc implements Serializable{
 	private Operation[] op;
 	private byte[] hash; //La chaine résultat sera la concatenation de hash et des opérations
 	private byte[] previousHash;
+	private int idCreateur;
 	
-	public Bloc(int id, Operation[] op, byte[] preHash) {
-		idB = id;
+	public Bloc(int idBloc, Operation[] op, byte[] preHash, int idCreateur) {
+		idB = idBloc;
 		this.op = op;
 		previousHash = preHash;
 		hash = calculerHash(this).getBytes();
+		this.idCreateur = idCreateur;
 	}
 
 	public int getIdB() {
@@ -49,6 +51,10 @@ public class Bloc implements Serializable{
 		this.op = op;
 	}
 	
+	public int getIdCreateur() {
+		return idCreateur;
+	}
+
 	public String str() {
 		String ops = op[0].toString();
 		//On concatène les opérations en une seule String
