@@ -20,7 +20,7 @@ public class Main {
 		Cles paire = new Cles();
 		
 		Bloc b1, b2;
-		b1 = new Bloc(1,listeOp1, null);
+		b1 = new Bloc(1,listeOp1, null, 0);
 		
 		//Chiffrement du hash
 		b1.setHash(Cles.chiffrement(b1.getHash(), paire.getClePrive()));
@@ -44,7 +44,7 @@ public class Main {
 		
 		
 		/* B2 */
-		b2 = new Bloc(2,listeOp2, b1.getHash());
+		b2 = new Bloc(2,listeOp2, b1.getHash(), 0);
 		
 		//Chiffrement du hash
 		b2.setHash(Cles.chiffrement(b2.getHash(), paire.getClePrive()));
