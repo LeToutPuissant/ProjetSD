@@ -32,22 +32,21 @@ public class Main {
 		
 		String message = "message";
 		Cles paireCles = new Cles();
-		String messageDecrypte;
-		byte[] messageCrypte;
+		byte[] messageDecrypte, messageCrypte, m = message.getBytes();
 		
 		// prive -> public
-		messageCrypte = Cles.chiffrement(message, paireCles.getClePrive());
+		messageCrypte = Cles.chiffrement(m, paireCles.getClePrive());
 		
 		messageDecrypte = Cles.dechiffrement(messageCrypte, paireCles.getClePublic());
 		
-		System.out.println("Message identique ? " + message.equals(messageDecrypte));
+		System.out.println("Message identique ? " + (message.compareTo(new String(messageDecrypte))==0) );
 		
 		//public -> prive
-		messageCrypte = Cles.chiffrement(message, paireCles.getClePublic());
+		messageCrypte = Cles.chiffrement(m, paireCles.getClePublic());
 		
 		messageDecrypte = Cles.dechiffrement(messageCrypte, paireCles.getClePrive());
 		
-		System.out.println("Message identique ? " + message.equals(messageDecrypte));
+		System.out.println("Message identique ? " + (message.compareTo(new String(messageDecrypte))==0));
 			
 	}
 }

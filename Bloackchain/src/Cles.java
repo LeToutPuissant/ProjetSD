@@ -62,16 +62,20 @@ public class Cles {
 		return clePublic;
 	}
 	
-	public static String dechiffrement(byte[] message, Key cle){
-		//byte[] messageCode = message.getBytes();
-		byte[] messageCode = message;
+	/**
+	 * Dechiffrement d'un message
+	 * @param message Message à déchiffrer
+	 * @param cle Clé de déchiffrement
+	 * @return Message déchiffré
+	 */
+	public static byte[] dechiffrement(byte[] message, Key cle){
 		 // Déchiffrement du message
         byte[] bytes = null;
         try {
             Cipher dechiffreur = Cipher.getInstance("RSA");
             dechiffreur.init(Cipher.DECRYPT_MODE, cle);
             System.out.println("poil");
-            bytes = dechiffreur.doFinal(messageCode);
+            bytes = dechiffreur.doFinal(message);
         } catch(NoSuchAlgorithmException e) {
             System.err.println("Erreur lors du dechiffrement : " + e);
             System.exit(-1);
@@ -89,18 +93,22 @@ public class Cles {
             System.exit(-1);
         }
  
-        return new String(bytes);
+        return bytes;
 	}
 	
-	//public static String chiffrement(String message, Key cle){
-	public static byte[] chiffrement(String message, Key cle){
-		byte[] messageCode = message.getBytes();
+	/**
+	 * Chiffrement du message
+	 * @param message Message à chiffrer
+	 * @param cle Clé de cryptage
+	 * @return message chiffré
+	 */
+	public static byte[] chiffrement(byte[] message, Key cle){
 		 // Chiffrement du message
         byte[] bytes = null;
         try {
             Cipher dechiffreur = Cipher.getInstance("RSA");
             dechiffreur.init(Cipher.ENCRYPT_MODE, cle);
-            bytes = dechiffreur.doFinal(messageCode);
+            bytes = dechiffreur.doFinal(message);
         } catch(NoSuchAlgorithmException e) {
             System.err.println("Erreur lors du chiffrement : " + e);
             System.exit(-1);
@@ -117,8 +125,7 @@ public class Cles {
             System.err.println("Erreur lors du chiffrement : " + e);
             System.exit(-1);
         }
- 
-        //return new String(bytes);
+        
         return bytes;
 	}
 }
