@@ -14,7 +14,7 @@ public class Bloc implements Serializable{
 		idB = id;
 		this.op = op;
 		previousHash = preHash;
-		hash = calculerHash(this);
+		hash = calculerHash(this).getBytes();
 	}
 
 	public int getIdB() {
@@ -62,7 +62,7 @@ public class Bloc implements Serializable{
 		return str();
 	}
 	
-	public static byte[] calculerHash(Bloc bloc) {
+	public static String calculerHash(Bloc bloc) {
 		if (bloc != null) {
 		      MessageDigest digest = null;
 
@@ -86,7 +86,7 @@ public class Bloc implements Serializable{
 		        builder.append(hex);
 		      }
 					
-		      return builder.toString().getBytes();
+		      return builder.toString();
 		    }
 			  
 		    return null;
