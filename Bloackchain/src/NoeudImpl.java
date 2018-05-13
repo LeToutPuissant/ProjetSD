@@ -175,8 +175,30 @@ public class NoeudImpl
 	}
 	
 	public synchronized boolean ajouterBloc(Bloc bloc){
+		PublicKey cle;
+		byte[] tmp = null;
+		// Si c'est ce noeud qui a créé ce bloc
+		if(id == bloc.getIdCreateur()){
+			cle = this.paireCles.getClePublic();
+		}
+		else{
+			// Regarde si le noeud connait une clé associé à l'id
+			cle = tabClePublic.get(bloc.getIdCreateur());
+		}
+		
+		
+		// Si on connait la clé alors on décrypte pour la vérification
+		if(cle != null){
+			tmp = bloc.getHash(); // On sauvegarde le hash précédent
+			bloc.setHash(Cles.dechiffrement(bloc.getHash(), cle));
+		}
+		
 		//Vérification si le nouveau bloc est valide (si il est déjà connue alors il est invalide)
 		if(chaine.isValidNewBlock(bloc, chaine.dernierBloc())){
+			// Si le blo était chiffré alors on remet le hash chiffré
+			if(cle != null){
+				bloc.setHash(tmp);
+			}
 			chaine.ajoutBloc(bloc);
 			System.out.println("Ajout du bloc : " + bloc.getIdB());
 			System.out.println("Elimination des opérations presente dans le bloc");
@@ -184,7 +206,7 @@ public class NoeudImpl
 			return true;
 		}
 		else{
-			System.out.println("Le noeud n'est pas valide ou est deja connue");
+			System.out.println("Le bloc n'est pas valide ou est deja connue");
 		}
 		return false;
 	}
@@ -208,8 +230,6 @@ public class NoeudImpl
 	 * @param b Bloc
 	 */
 	public void eliminerOperation(Bloc b){
-		System.out.println(bufferOp.toString() + "\n");
-		
 		//Vérifie pour chaque opération présent dans le bloc
 		for(int i=0; i<b.getOp().length; i++){
 			// Et pour chaque opération du Buffer
@@ -224,8 +244,6 @@ public class NoeudImpl
 				}
 			}
 		}
-		
-		System.out.println("\n" + bufferOp.toString());
 	}
 	
 	/**
@@ -363,6 +381,9 @@ public class NoeudImpl
 	 */
 	public void receptionCle(int id, PublicKey c)
 			throws RemoteException{
-		
+		// Propage si la clé a été ajouté
+		if(ajouterCle(id,c)){
+			propagationCle(id, c);;
+		}
 	}
 }

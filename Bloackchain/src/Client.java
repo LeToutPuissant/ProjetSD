@@ -13,39 +13,55 @@ public class Client{
 			//Cles paire = new Cles();
 			Noeud b = (Noeud) Naming.lookup("rmi://" + args[0] + ":" + args[1] + "/Message") ;
 			
-			// Envoie d'une clé inconnue
-			//b.receptionCle(id, paire.getClePublic());
+			Operation o1 = new Operation(1, "Cocou");
+			Operation o2 = new Operation(2, "Vendredi");
+			Operation o3 = new Operation(3, "Sylvain");
+			Operation o4 = new Operation(4, "Perdu");
+			Operation o5 = new Operation(5, "Dead Cells");
+			
+			Operation[] listeOp1 = new Operation[3];
+			listeOp1[0] = o1;
+			listeOp1[1] = o2;
+			listeOp1[2] = o3;
+			
+			Operation[] listeOp2 = new Operation[2];
+			listeOp2[0] = o4;
+			listeOp2[1] = o5;
+			
+			Cles paire = new Cles();
+			
+			Bloc b1, b2;
+			b1 = new Bloc(1,listeOp1, null, id);
+			b1.setHash(Cles.chiffrement(b1.getHash(), paire.getClePrive()));
+			b2 = new Bloc(2,listeOp2, b1.getHash(), id);
+			b2.setHash(Cles.chiffrement(b2.getHash(), paire.getClePrive()));
+			
+			// Envoie de la clé
+			b.receptionCle(id, paire.getClePublic());
+			
 			// Fait dormir le proc 60 sec
 			try{
-				TimeUnit.SECONDS.sleep(30);
+				TimeUnit.SECONDS.sleep(1);
 			}
 			catch(Exception e){
 				System.out.println(e);
 			}
 			
-			//Envoie d'une clé inconnue
-			//b.receptionCle(id, paire.getClePublic());
+			//Envoie du bloc1
+			b.receptionBloc(b1);
 			
 			// Fait dormir le proc 60 sec
 			try{
-				TimeUnit.SECONDS.sleep(30);
+				TimeUnit.SECONDS.sleep(1);
 			}
 			catch(Exception e){
 				System.out.println(e);
 			}
 			
-			//Renvoie le bloc b1 qui ne devrait pas être stoqué
-			//b.receptionCle(id, paire.getClePublic());
+			//Envoie du bloc2
+			b.receptionBloc(b2);
 			
-			// Fait dormir le proc 60 sec
-			try{
-				TimeUnit.SECONDS.sleep(30);
-			}
-			catch(Exception e){
-				System.out.println(e);
-			}
 			
-			//b.receptionCle(10,new Cles().getClePublic());
 			
 			System.out.println("fin") ; 
 		}

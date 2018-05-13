@@ -1,6 +1,7 @@
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 public class Bloc implements Serializable{
 
@@ -61,7 +62,7 @@ public class Bloc implements Serializable{
 		for(int i = 1; i < op.length; i++) {
 			ops += SEP + op[i];
 		}
-		return idB + ops + previousHash;
+		return idB + ops + Arrays.toString(previousHash);
 	}
 	
 	public String toString(){

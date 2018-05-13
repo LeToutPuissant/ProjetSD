@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Blockchain {
@@ -45,15 +46,16 @@ public class Blockchain {
 	      if (previousBlock.getIdB() + 1 != newBlock.getIdB()) {
 	        return false;
 	      }
-	      
+
 	      // Si
 	      if (newBlock.getPreviousHash() == null  ||  
-		    !newBlock.getPreviousHash().equals(previousBlock.getHash())) {
+		    !Arrays.equals(newBlock.getPreviousHash(), previousBlock.getHash())) {
 	        return false;
 	      }
 	      // Si le hash du nouveau bloc est null ou si les hash ne correspondent pas
 	      if (newBlock.getHash() == null  ||  
-		    new String(Bloc.calculerHash(newBlock)).compareTo(new String(newBlock.getHash()))!=0 ) {
+		    Bloc.calculerHash(newBlock).compareTo(new String(newBlock.getHash()))!=0 ) {
+	    	  System.out.println("carre");
 	        return false;
 	      }
 
@@ -64,7 +66,7 @@ public class Blockchain {
 	    if(newBlock != null  &&  previousBlock == null){
 	    	 // Si le hash du nouveau bloc est null ou si les hash ne correspondent pas
 		      if (newBlock.getHash() == null  ||  
-			    new String(Bloc.calculerHash(newBlock)).compareTo(new String(newBlock.getHash()))!=0 ) {
+			    Bloc.calculerHash(newBlock).compareTo(new String(newBlock.getHash()))!=0 ) {
 		        return false;
 		      }
 		      return true;
