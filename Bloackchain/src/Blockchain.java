@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Blockchain {
@@ -41,25 +42,34 @@ public class Blockchain {
 	//Un nouveau bloc est valide avec le bloc précédent de la Blockchain
 	public boolean isValidNewBlock(Bloc newBlock, Bloc previousBlock) {
 	    if (newBlock != null  &&  previousBlock != null) {
+	    	// Si les Id ne se suivent pas
 	      if (previousBlock.getIdB() + 1 != newBlock.getIdB()) {
 	        return false;
 	      }
 
+	      // Si
 	      if (newBlock.getPreviousHash() == null  ||  
-		    !newBlock.getPreviousHash().equals(previousBlock.getHash())) {
+		    !Arrays.equals(newBlock.getPreviousHash(), previousBlock.getHash())) {
 	        return false;
 	      }
-
+	      // Si le hash du nouveau bloc est null ou si les hash ne correspondent pas
 	      if (newBlock.getHash() == null  ||  
-		    !Bloc.calculerHash(newBlock).equals(newBlock.getHash())) {
+		    Bloc.calculerHash(newBlock).compareTo(new String(newBlock.getHash()))!=0 ) {
+	    	  System.out.println("carre");
 	        return false;
 	      }
 
 	      return true;
 	    }
+	    
 	    // Si c'est le premier bloc de la chaine (donc le précédent est null)
 	    if(newBlock != null  &&  previousBlock == null){
-	    	return true;
+	    	 // Si le hash du nouveau bloc est null ou si les hash ne correspondent pas
+		      if (newBlock.getHash() == null  ||  
+			    Bloc.calculerHash(newBlock).compareTo(new String(newBlock.getHash()))!=0 ) {
+		        return false;
+		      }
+		      return true;
 	    }
 
 	    return false;
@@ -84,15 +94,15 @@ public class Blockchain {
 	  }
 
 	
-	public Bloc nouveauBloc(Operation[] listeOps) {
+	public Bloc nouveauBloc(Operation[] listeOps, int idCreateur) {
 		Bloc latestBloc = dernierBloc();
 		Bloc add;
 		//Si le bloc a ajouté est le premier du blockchain
 		if(latestBloc == null) {
-			add = new Bloc(0, listeOps, null);
+			add = new Bloc(0, listeOps, null, idCreateur);
 		}
 		else {
-			add = new Bloc(latestBloc.getIdB() + 1, listeOps, latestBloc.getHash());
+			add = new Bloc(latestBloc.getIdB() + 1, listeOps, latestBloc.getHash(), idCreateur);
 		}
 		return add; 
 	}

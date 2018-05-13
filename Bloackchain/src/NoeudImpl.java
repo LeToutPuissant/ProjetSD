@@ -1,9 +1,11 @@
 import java.rmi.server.UnicastRemoteObject ;
+import java.util.HashMap;
 import java.util.Vector;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
-import java.rmi.RemoteException ;
+import java.rmi.RemoteException;
+import java.security.PublicKey;
 
 public class NoeudImpl 
 	extends UnicastRemoteObject
@@ -24,7 +26,14 @@ public class NoeudImpl
 	/** Buffer des opération en attente de confirmation */
 	private Vector<Operation> bufferOp;
 	
+	/** Chaine de bloc */
 	private Blockchain chaine;
+	
+	/** Tableau associatif d'id et de clé public */
+	private HashMap<Integer, PublicKey> tabClePublic;
+	
+	/** Paire de clé */
+	private Cles paireCles;
 	
 	public NoeudImpl (int id, String ip, String port)
 		throws RemoteException{
@@ -34,6 +43,8 @@ public class NoeudImpl
 			this.carnetAdresse = new Vector<Adresse>();
 			this.bufferOp = new Vector<Operation>();
 			this.chaine = new Blockchain();
+			this.tabClePublic = new HashMap<Integer, PublicKey>();
+			this.paireCles = new Cles();
 	}
 	
 	/**
@@ -164,8 +175,30 @@ public class NoeudImpl
 	}
 	
 	public synchronized boolean ajouterBloc(Bloc bloc){
+		PublicKey cle;
+		byte[] tmp = null;
+		// Si c'est ce noeud qui a créé ce bloc
+		if(id == bloc.getIdCreateur()){
+			cle = this.paireCles.getClePublic();
+		}
+		else{
+			// Regarde si le noeud connait une clé associé à l'id
+			cle = tabClePublic.get(bloc.getIdCreateur());
+		}
+		
+		
+		// Si on connait la clé alors on décrypte pour la vérification
+		if(cle != null){
+			tmp = bloc.getHash(); // On sauvegarde le hash précédent
+			bloc.setHash(Cles.dechiffrement(bloc.getHash(), cle));
+		}
+		
 		//Vérification si le nouveau bloc est valide (si il est déjà connue alors il est invalide)
 		if(chaine.isValidNewBlock(bloc, chaine.dernierBloc())){
+			// Si le blo était chiffré alors on remet le hash chiffré
+			if(cle != null){
+				bloc.setHash(tmp);
+			}
 			chaine.ajoutBloc(bloc);
 			System.out.println("Ajout du bloc : " + bloc.getIdB());
 			System.out.println("Elimination des opérations presente dans le bloc");
@@ -173,7 +206,7 @@ public class NoeudImpl
 			return true;
 		}
 		else{
-			System.out.println("Le noeud n'est pas valide ou est deja connue");
+			System.out.println("Le bloc n'est pas valide ou est deja connue");
 		}
 		return false;
 	}
@@ -197,8 +230,6 @@ public class NoeudImpl
 	 * @param b Bloc
 	 */
 	public void eliminerOperation(Bloc b){
-		System.out.println(bufferOp.toString() + "\n");
-		
 		//Vérifie pour chaque opération présent dans le bloc
 		for(int i=0; i<b.getOp().length; i++){
 			// Et pour chaque opération du Buffer
@@ -213,8 +244,52 @@ public class NoeudImpl
 				}
 			}
 		}
-		
-		System.out.println("\n" + bufferOp.toString());
+	}
+	
+	/**
+	 * Ajoute la clé
+	 * @param id Id du serveur
+	 * @param c Clé du serveur
+	 * @return si la clé a été ajouté
+	 */
+	public synchronized boolean ajouterCle(int id, PublicKey c){
+		if(estCleInconnue(id)){
+			tabClePublic.put(id, c);
+			System.out.println("La clé du serveur " + id + " est ajoute");
+			return true;
+		}
+		else{
+			System.out.println("L'id est déja connue");
+		}
+		return false;
+	}
+	
+	/**
+	 * Si l'identifiant est déja associé à une valeur
+	 * @param id Id associé au serveur
+	 * @return si l'id est deja inconnue alors true sinon false
+	 */
+	public boolean estCleInconnue(int id){
+		return !tabClePublic.containsKey(id);
+	}
+	
+	/**
+	 * Propage la clé aux voisins
+	 * @param id Id du serveur
+	 * @param c Clé public du serveur
+	 */
+	public void propagationCle(int id, PublicKey c){
+		for(int i=0; i<carnetAdresse.size(); i++){
+			try{
+				Noeud b = (Noeud) Naming.lookup(
+						"rmi://" + carnetAdresse.get(i).getIp() 
+						+ ":" + carnetAdresse.get(i).getPort() + "/Message");
+				b.receptionCle(id, c);
+			}
+			catch (NotBoundException re) { System.out.println(re) ; }
+			catch (RemoteException re) { System.out.println(re) ; }
+			catch (MalformedURLException e) { System.out.println(e) ; }
+		}
 	}
 	
 	/*************/
@@ -296,5 +371,19 @@ public class NoeudImpl
 	public Bloc[] demanderBlocs()
 			throws RemoteException{
 		return chaine.getArrayBlocs();
+	}
+	
+	/**
+	 * Envoie la clé public et l'id associé à cette clé
+	 * @param id Id du serveur
+	 * @param c Clé public
+	 * @throws RemoteException
+	 */
+	public void receptionCle(int id, PublicKey c)
+			throws RemoteException{
+		// Propage si la clé a été ajouté
+		if(ajouterCle(id,c)){
+			propagationCle(id, c);;
+		}
 	}
 }

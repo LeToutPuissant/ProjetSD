@@ -1,5 +1,6 @@
 import java.rmi.Remote ; 
-import java.rmi.RemoteException ; 
+import java.rmi.RemoteException ;
+import java.security.PublicKey; 
 
 public interface Noeud extends Remote{
 	
@@ -41,5 +42,14 @@ public interface Noeud extends Remote{
 	 * @throws RemoteException
 	 */
 	public Bloc[] demanderBlocs()
+			throws RemoteException;
+	
+	/**
+	 * Envoie la clé public et l'id associé à cette clé
+	 * @param id Id du serveur
+	 * @param c Clé public
+	 * @throws RemoteException
+	 */
+	public void receptionCle(int id, PublicKey c)
 			throws RemoteException;
 }

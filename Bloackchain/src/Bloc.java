@@ -1,20 +1,23 @@
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 public class Bloc implements Serializable{
 
 	private int idB;
 	private static final String SEP = "\n";
 	private Operation[] op;
-	private String hash; //La chaine résultat sera la concatenation de hash et des opérations
-	private String previousHash;
+	private byte[] hash; //La chaine résultat sera la concatenation de hash et des opérations
+	private byte[] previousHash;
+	private int idCreateur;
 	
-	public Bloc(int id, Operation[] op, String preHash) {
-		idB = id;
+	public Bloc(int idBloc, Operation[] op, byte[] preHash, int idCreateur) {
+		idB = idBloc;
 		this.op = op;
 		previousHash = preHash;
-		hash = calculerHash(this);
+		hash = calculerHash(this).getBytes();
+		this.idCreateur = idCreateur;
 	}
 
 	public int getIdB() {
@@ -25,19 +28,19 @@ public class Bloc implements Serializable{
 		this.idB = idB;
 	}
 
-	public String getHash() {
+	public byte[] getHash() {
 		return hash;
 	}
 
-	public void setHash(String hash) {
+	public void setHash(byte[] hash) {
 		this.hash = hash;
 	}
 
-	public String getPreviousHash() {
+	public byte[] getPreviousHash() {
 		return previousHash;
 	}
 
-	public void setPreviousHash(String previousHash) {
+	public void setPreviousHash(byte[] previousHash) {
 		this.previousHash = previousHash;
 	}
 
@@ -49,13 +52,17 @@ public class Bloc implements Serializable{
 		this.op = op;
 	}
 	
+	public int getIdCreateur() {
+		return idCreateur;
+	}
+
 	public String str() {
 		String ops = op[0].toString();
 		//On concatène les opérations en une seule String
 		for(int i = 1; i < op.length; i++) {
 			ops += SEP + op[i];
 		}
-		return idB + ops + previousHash;
+		return idB + ops + Arrays.toString(previousHash);
 	}
 	
 	public String toString(){

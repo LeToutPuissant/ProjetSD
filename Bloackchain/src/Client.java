@@ -9,6 +9,10 @@ public class Client{
 			System.exit(0) ;
 		}
 		try{
+			int id = 5;
+			//Cles paire = new Cles();
+			Noeud b = (Noeud) Naming.lookup("rmi://" + args[0] + ":" + args[1] + "/Message") ;
+			
 			Operation o1 = new Operation(1, "Cocou");
 			Operation o2 = new Operation(2, "Vendredi");
 			Operation o3 = new Operation(3, "Sylvain");
@@ -24,49 +28,40 @@ public class Client{
 			listeOp2[0] = o4;
 			listeOp2[1] = o5;
 			
+			Cles paire = new Cles();
 			
-			Noeud b = (Noeud) Naming.lookup("rmi://" + args[0] + ":" + args[1] + "/Message") ;
-			Bloc b1 = new Bloc(0,listeOp1, null);
-			Bloc b2 = new Bloc(1,listeOp2, b1.getHash());
+			Bloc b1, b2;
+			b1 = new Bloc(1,listeOp1, null, id);
+			b1.setHash(Cles.chiffrement(b1.getHash(), paire.getClePrive()));
+			b2 = new Bloc(2,listeOp2, b1.getHash(), id);
+			b2.setHash(Cles.chiffrement(b2.getHash(), paire.getClePrive()));
 			
-			// Envoie des opérations qui devront être supprimer
-			b.receptionOperation(o1);
-			b.receptionOperation(o3);
-			b.receptionOperation(o4);
-			
-			// Envoie des opéarations qui ne devront pas être supprimé
-			b.receptionOperation(new Operation(6, "Ne me supprime pas"));
+			// Envoie de la clé
+			b.receptionCle(id, paire.getClePublic());
 			
 			// Fait dormir le proc 60 sec
 			try{
-				TimeUnit.SECONDS.sleep(30);
+				TimeUnit.SECONDS.sleep(1);
 			}
 			catch(Exception e){
 				System.out.println(e);
 			}
 			
+			//Envoie du bloc1
 			b.receptionBloc(b1);
 			
 			// Fait dormir le proc 60 sec
 			try{
-				TimeUnit.SECONDS.sleep(30);
+				TimeUnit.SECONDS.sleep(1);
 			}
 			catch(Exception e){
 				System.out.println(e);
 			}
 			
-			//Renvoie le bloc b1 qui ne devrait pas être stoqué
-			b.receptionBloc(b1);
-			
-			// Fait dormir le proc 60 sec
-			try{
-				TimeUnit.SECONDS.sleep(30);
-			}
-			catch(Exception e){
-				System.out.println(e);
-			}
-			
+			//Envoie du bloc2
 			b.receptionBloc(b2);
+			
+			
 			
 			System.out.println("fin") ; 
 		}
