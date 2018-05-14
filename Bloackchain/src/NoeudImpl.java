@@ -1,6 +1,7 @@
 import java.rmi.server.UnicastRemoteObject ;
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -9,7 +10,7 @@ import java.security.PublicKey;
 
 public class NoeudImpl 
 	extends UnicastRemoteObject
-	implements Noeud{
+	implements Noeud, Runnable{
 	
 	/** Id du Noeud */
 	private int id;
@@ -34,6 +35,12 @@ public class NoeudImpl
 	
 	/** Paire de clé */
 	private Cles paireCles;
+	
+	/* Attribut pour la preuve de travaille */
+	/** Temps minimum d'attente */
+	private static final int MIN_TEMPS = 10;
+	/** Temps  maximal d'attente */
+	private static final int MAX_TEMPS = 60;
 	
 	public NoeudImpl (int id, String ip, String port)
 		throws RemoteException{
@@ -80,25 +87,6 @@ public class NoeudImpl
 		if(estAdresseInconnue(ad)){
 			carnetAdresse.add(ad);
 			System.out.println("Adresse ajoute : " + ad.getIp() + ":" + ad.getPort());
-			
-			// Envoie toutes les opération du buffer.
-			if(!bufferOp.isEmpty()){
-				System.out.println("Envoie des opérations du buffer au nouveau contacte");
-				try{
-					Noeud b = (Noeud) Naming.lookup("rmi://" + ad.getIp() + ":" + ad.getPort() + "/Message");
-					// Transfert tous ses opérations à l'autre serveur
-					for(Operation op : bufferOp){
-						b.receptionOperation(op);
-					}
-					// Transfert Tous ses blocs à l'autre seveur
-					for(Bloc bloc : chaine.getBlocs()){ //A améliorer
-						b.receptionBloc(bloc);
-					}
-				}
-				catch (NotBoundException re) { System.out.println(re) ; }
-				catch (RemoteException re) { System.out.println(re) ; }
-				catch (MalformedURLException e) { System.out.println(e) ; }
-			}
 		}
 		else{
 			System.out.println("Adresse : " + ad.getIp() + ":" + ad.getPort() + " est deja connue");
@@ -114,7 +102,38 @@ public class NoeudImpl
 		// Ajout de l'adresse de l'objet local à l'autre serveur
 		try{
 			Noeud b = (Noeud) Naming.lookup("rmi://" + ad.getIp() + ":" + ad.getPort() + "/Message") ;
+			
+			//Envoie la clé au serveur
+			b.receptionCle(id, paireCles.getClePublic());
+			
+			
+			// Demander la clé du noeud
+			ajouterCle(b.demanderId(), b.demanderCle());
+			
+			// Demander Operation
+			Operation[] tabOp = b.demanderOperations();
+			for(Operation op : tabOp){
+				if(this.ajouterOperation(op)){
+					propagerOperation(op);
+				}
+			}
+			
+			// Demande les blocs du noeud																																																				
+			Bloc[] blocs = b.demanderBlocs();
+			for(Bloc bloc : blocs){
+				if(this.ajouterBloc(bloc)){
+					propagerBloc(bloc);
+				}
+			}
+			
+			// Envoie toutes les données du noeud
 			b.ajouterServeur(this.adresse);
+			try{
+				TimeUnit.SECONDS.sleep(1);
+			}
+			catch(Exception e){
+				System.out.println(e);
+			}
 		}
 		catch (NotBoundException re) { System.out.println(re) ; }
 		catch (RemoteException re) { System.out.println(re) ; }
@@ -201,7 +220,7 @@ public class NoeudImpl
 			}
 			chaine.ajoutBloc(bloc);
 			System.out.println("Ajout du bloc : " + bloc.getIdB());
-			System.out.println("Elimination des opérations presente dans le bloc");
+			System.out.println("Elimination des opérations presente dans le bloc : ");
 			eliminerOperation(bloc);
 			return true;
 		}
@@ -236,10 +255,10 @@ public class NoeudImpl
 			for(int j=0; j<bufferOp.size(); j++){
 				//Si deux opérations correspondent
 				if(b.getOp()[i].equals(bufferOp.get(j))){
-					System.out.println("Suppremession : " + bufferOp.get(j).getIdO());
+					System.out.println("\tSuppremession : " + bufferOp.get(j).getIdO());
 					// Supprime 
 					bufferOp.remove(j);
-					// Decremente de 1 car la taille vien de diminuer de 1
+					// Decremente de 1 car la taille vient de diminuer de 1
 					j--;
 				}
 			}
@@ -289,6 +308,52 @@ public class NoeudImpl
 			catch (NotBoundException re) { System.out.println(re) ; }
 			catch (RemoteException re) { System.out.println(re) ; }
 			catch (MalformedURLException e) { System.out.println(e) ; }
+		}
+	}
+	
+	/**
+	 * Fait une preuve de Travail et crée un bloc
+	 * @return novueau bloc
+	 */
+	public Bloc preuveDeTravaille(){
+		Bloc b;
+		int idB=0;
+		Operation[] tabOp = new Operation[bufferOp.size()];
+		//bufferOp.toArray(tabOp);
+		//bufferOp.copyInto(tabOp);
+		for(int i=0; i<bufferOp.size(); i++){
+			tabOp[i] = bufferOp.get(i);
+		}
+		
+		try{
+			TimeUnit.SECONDS.sleep((int)(Math.random()*(MAX_TEMPS - MIN_TEMPS) + MIN_TEMPS));
+		}
+		catch(Exception e){
+			System.out.println(e);
+		}
+		if(chaine.dernierBloc() != null){
+			idB = chaine.dernierBloc().getIdB()+1;
+		}
+		b = new Bloc(
+			idB,
+			tabOp,
+			chaine.dernierBloc()==null? null : chaine.dernierBloc().getHash(),
+			id);
+		
+		//Crypte le hash
+		b.setHash(Cles.chiffrement(b.getHash(), this.paireCles.getClePrive()));
+		return b;
+	}
+	
+	/**
+	 * Le noeud fait une preuve de travail
+	 */
+	public void travaille(){
+		Bloc bloc = preuveDeTravaille();
+		// Si le bloc a été ajouté
+		if(ajouterBloc(bloc)){
+			System.out.println("Ce noeud a créé le bloc " + bloc.getIdB());
+			propagerBloc(bloc);
 		}
 	}
 	
@@ -370,7 +435,11 @@ public class NoeudImpl
 	 */
 	public Bloc[] demanderBlocs()
 			throws RemoteException{
-		return chaine.getArrayBlocs();
+		Bloc[] tab = new Bloc[chaine.getBlocs().size()];
+		for(int i=0; i<chaine.getBlocs().size(); i++){
+			tab[i] = chaine.getBlocs().get(i);
+		}
+		return tab;
 	}
 	
 	/**
@@ -384,6 +453,62 @@ public class NoeudImpl
 		// Propage si la clé a été ajouté
 		if(ajouterCle(id,c)){
 			propagationCle(id, c);;
+		}
+	}
+	
+	/**
+	 * Demande au serveur
+	 * @return la clé du serveur
+	 * @throws RemoteException
+	 */
+	public PublicKey demanderCle()
+			throws RemoteException{
+		return paireCles.getClePublic();
+	}
+	
+	/**
+	 * Demande les opérations du buffer
+	 * @return Les opérations du buffer
+	 * @throws RemoteException
+	 */
+	public Operation[] demanderOperations()
+			throws RemoteException{
+		Operation[] tab = new Operation[bufferOp.size()];
+		for(int i=0; i<bufferOp.size(); i++){
+			tab[i] = bufferOp.get(i);
+		}
+		return tab;
+	}
+	
+	/**
+	 * Demande l'id du serveur
+	 * @return
+	 * @throws RemoteException
+	 */
+	public int demanderId()
+			throws RemoteException{
+		return this.id;
+	}
+
+	/*********************/
+	/* Fonction Runnable */
+	/*********************/
+	/**
+	 * Crée un thread. Ce thread lance le serveur.
+	 */
+	public void run(){
+		try{
+			/** Lancement du Serveur */
+			Naming.rebind("rmi://" + this.adresse.getIp() + ":" + this.adresse.getPort() + "/Message" ,this);
+			System.out.println("Serveur pret");
+		}
+		catch (RemoteException re) {
+			System.out.println(re);
+			//System.exit(1);
+		}
+		catch (MalformedURLException e) {
+			System.out.println(e);
+			//System.exit(1);
 		}
 	}
 }

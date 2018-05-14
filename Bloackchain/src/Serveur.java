@@ -1,5 +1,6 @@
 import java.net.* ;
 import java.rmi.* ;
+import java.util.concurrent.TimeUnit;
 
 public class Serveur{
 	public static void main(String [] args){
@@ -9,6 +10,7 @@ public class Serveur{
 		}
 		
 		try{
+			Bloc bloc;
 			/** Création de l'objet */
 			NoeudImpl objLocal = new NoeudImpl(Integer.parseInt(args[0]), args[1], args[2]);
 			
@@ -19,10 +21,17 @@ public class Serveur{
 			
 			
 			/** Lancement du Serveur */
-			Naming.rebind("rmi://" + args[1] + ":" + args[2] + "/Message" ,objLocal) ;
-			System.out.println("Serveur pret") ;
+			Thread t = new Thread(objLocal);
+			t.run();
+			
+			/** Fait du travail */
+			for(int i=0; i<10; i++){
+				objLocal.travaille();
+			}
 		}
 		catch (RemoteException re) { System.out.println(re) ; }
-		catch (MalformedURLException e) { System.out.println(e) ; }
+		//Termine le processus
+		System.out.println("Fin serveur");
+		System.exit(0);
 	}
 }
