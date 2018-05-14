@@ -23,17 +23,14 @@ public class Serveur{
 			/** Lancement du Serveur */
 			Thread t = new Thread(objLocal);
 			t.run();
-			//objLocal.ajouterOperation(new Operation(0,"Merde"));
+			
 			/** Fait du travail */
 			for(int i=0; i<10; i++){
-				bloc = objLocal.preuveDeTravaille();
-				// Si le bloc a été ajouté
-				if(objLocal.ajouterBloc(bloc)){
-					System.out.println("Ce noeud a créé le bloc " + bloc.getIdB());
-					objLocal.propagerBloc(bloc);
-				}
+				objLocal.travaille();
 			}
 		}
 		catch (RemoteException re) { System.out.println(re) ; }
+		//Termine le processus
+		System.exit(0);
 	}
 }

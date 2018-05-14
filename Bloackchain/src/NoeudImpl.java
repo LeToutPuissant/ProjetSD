@@ -337,12 +337,24 @@ public class NoeudImpl
 		b = new Bloc(
 			idB,
 			tabOp,
-			//null,
 			chaine.dernierBloc()==null? null : chaine.dernierBloc().getHash(),
 			id);
+		
 		//Crypte le hash
 		b.setHash(Cles.chiffrement(b.getHash(), this.paireCles.getClePrive()));
 		return b;
+	}
+	
+	/**
+	 * Le noeud fait une preuve de travail
+	 */
+	public void travaille(){
+		Bloc bloc = preuveDeTravaille();
+		// Si le bloc a été ajouté
+		if(ajouterBloc(bloc)){
+			System.out.println("Ce noeud a créé le bloc " + bloc.getIdB());
+			propagerBloc(bloc);
+		}
 	}
 	
 	/*************/
