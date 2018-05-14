@@ -31,6 +31,7 @@ public class Serveur{
 		}
 		catch (RemoteException re) { System.out.println(re) ; }
 		//Termine le processus
+		System.out.println("Fin serveur");
 		System.exit(0);
 	}
 }
