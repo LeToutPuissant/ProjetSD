@@ -220,7 +220,7 @@ public class NoeudImpl
 			}
 			chaine.ajoutBloc(bloc);
 			System.out.println("Ajout du bloc : " + bloc.getIdB());
-			System.out.println("Elimination des opérations presente dans le bloc");
+			System.out.println("Elimination des opérations presente dans le bloc : ");
 			eliminerOperation(bloc);
 			return true;
 		}
@@ -255,7 +255,7 @@ public class NoeudImpl
 			for(int j=0; j<bufferOp.size(); j++){
 				//Si deux opérations correspondent
 				if(b.getOp()[i].equals(bufferOp.get(j))){
-					System.out.println("Suppremession : " + bufferOp.get(j).getIdO());
+					System.out.println("\tSuppremession : " + bufferOp.get(j).getIdO());
 					// Supprime 
 					bufferOp.remove(j);
 					// Decremente de 1 car la taille vient de diminuer de 1
