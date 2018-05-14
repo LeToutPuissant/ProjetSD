@@ -38,9 +38,9 @@ public class NoeudImpl
 	
 	/* Attribut pour la preuve de travaille */
 	/** Temps minimum d'attente */
-	private static final int MIN_TEMPS = 30;
+	private static final int MIN_TEMPS = 10;
 	/** Temps  maximal d'attente */
-	private static final int MAX_TEMPS = 180;
+	private static final int MAX_TEMPS = 60;
 	
 	public NoeudImpl (int id, String ip, String port)
 		throws RemoteException{
@@ -102,9 +102,11 @@ public class NoeudImpl
 		// Ajout de l'adresse de l'objet local à l'autre serveur
 		try{
 			Noeud b = (Noeud) Naming.lookup("rmi://" + ad.getIp() + ":" + ad.getPort() + "/Message") ;
-			// Envoie toutes les données du noeud
-			b.ajouterServeur(this.adresse);
-
+			
+			//Envoie la clé au serveur
+			b.receptionCle(id, paireCles.getClePublic());
+			
+			
 			// Demander la clé du noeud
 			ajouterCle(b.demanderId(), b.demanderCle());
 			
@@ -115,14 +117,23 @@ public class NoeudImpl
 					propagerOperation(op);
 				}
 			}
-			System.out.println("Bloc");
+			
 			// Demande les blocs du noeud																																																				
 			Bloc[] blocs = b.demanderBlocs();
 			for(Bloc bloc : blocs){
 				if(this.ajouterBloc(bloc)){
 					propagerBloc(bloc);
 				}
-			}	
+			}
+			
+			// Envoie toutes les données du noeud
+			b.ajouterServeur(this.adresse);
+			try{
+				TimeUnit.SECONDS.sleep(1);
+			}
+			catch(Exception e){
+				System.out.println(e);
+			}
 		}
 		catch (NotBoundException re) { System.out.println(re) ; }
 		catch (RemoteException re) { System.out.println(re) ; }
