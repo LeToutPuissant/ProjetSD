@@ -9,6 +9,8 @@ rmiregistry 3046 &
 rmiregistry 3047 &
 rmiregistry 3048 &
 
+rmic NoeudImpl
+
 ##
 # Lancement des serveurs
 # La topologie est la suivante
