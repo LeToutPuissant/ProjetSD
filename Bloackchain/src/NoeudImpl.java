@@ -87,25 +87,6 @@ public class NoeudImpl
 		if(estAdresseInconnue(ad)){
 			carnetAdresse.add(ad);
 			System.out.println("Adresse ajoute : " + ad.getIp() + ":" + ad.getPort());
-			
-			// Envoie toutes les opération du buffer.
-			if(!bufferOp.isEmpty()){
-				System.out.println("Envoie des opérations du buffer au nouveau contacte");
-				try{
-					Noeud b = (Noeud) Naming.lookup("rmi://" + ad.getIp() + ":" + ad.getPort() + "/Message");
-					// Transfert tous ses opérations à l'autre serveur
-					for(Operation op : bufferOp){
-						b.receptionOperation(op);
-					}
-					// Transfert Tous ses blocs à l'autre seveur
-					for(Bloc bloc : chaine.getBlocs()){ //A améliorer
-						b.receptionBloc(bloc);
-					}
-				}
-				catch (NotBoundException re) { System.out.println(re) ; }
-				catch (RemoteException re) { System.out.println(re) ; }
-				catch (MalformedURLException e) { System.out.println(e) ; }
-			}
 		}
 		else{
 			System.out.println("Adresse : " + ad.getIp() + ":" + ad.getPort() + " est deja connue");
@@ -121,7 +102,27 @@ public class NoeudImpl
 		// Ajout de l'adresse de l'objet local à l'autre serveur
 		try{
 			Noeud b = (Noeud) Naming.lookup("rmi://" + ad.getIp() + ":" + ad.getPort() + "/Message") ;
+			// Envoie toutes les données du noeud
 			b.ajouterServeur(this.adresse);
+
+			// Demander la clé du noeud
+			ajouterCle(b.demanderId(), b.demanderCle());
+			
+			// Demander Operation
+			Operation[] tabOp = b.demanderOperations();
+			for(Operation op : tabOp){
+				if(this.ajouterOperation(op)){
+					propagerOperation(op);
+				}
+			}
+			System.out.println("Bloc");
+			// Demande les blocs du noeud																																																				
+			Bloc[] blocs = b.demanderBlocs();
+			for(Bloc bloc : blocs){
+				if(this.ajouterBloc(bloc)){
+					propagerBloc(bloc);
+				}
+			}	
 		}
 		catch (NotBoundException re) { System.out.println(re) ; }
 		catch (RemoteException re) { System.out.println(re) ; }
@@ -246,7 +247,7 @@ public class NoeudImpl
 					System.out.println("Suppremession : " + bufferOp.get(j).getIdO());
 					// Supprime 
 					bufferOp.remove(j);
-					// Decremente de 1 car la taille vien de diminuer de 1
+					// Decremente de 1 car la taille vient de diminuer de 1
 					j--;
 				}
 			}
@@ -297,6 +298,40 @@ public class NoeudImpl
 			catch (RemoteException re) { System.out.println(re) ; }
 			catch (MalformedURLException e) { System.out.println(e) ; }
 		}
+	}
+	
+	/**
+	 * Fait une preuve de Travail et crée un bloc
+	 * @return novueau bloc
+	 */
+	public Bloc preuveDeTravaille(){
+		Bloc b;
+		int idB=0;
+		Operation[] tabOp = new Operation[bufferOp.size()];
+		//bufferOp.toArray(tabOp);
+		//bufferOp.copyInto(tabOp);
+		for(int i=0; i<bufferOp.size(); i++){
+			tabOp[i] = bufferOp.get(i);
+		}
+		
+		try{
+			TimeUnit.SECONDS.sleep((int)(Math.random()*(MAX_TEMPS - MIN_TEMPS) + MIN_TEMPS));
+		}
+		catch(Exception e){
+			System.out.println(e);
+		}
+		if(chaine.dernierBloc() != null){
+			idB = chaine.dernierBloc().getIdB()+1;
+		}
+		b = new Bloc(
+			idB,
+			tabOp,
+			//null,
+			chaine.dernierBloc()==null? null : chaine.dernierBloc().getHash(),
+			id);
+		//Crypte le hash
+		b.setHash(Cles.chiffrement(b.getHash(), this.paireCles.getClePrive()));
+		return b;
 	}
 	
 	/*************/
@@ -377,7 +412,11 @@ public class NoeudImpl
 	 */
 	public Bloc[] demanderBlocs()
 			throws RemoteException{
-		return chaine.getArrayBlocs();
+		Bloc[] tab = new Bloc[chaine.getBlocs().size()];
+		for(int i=0; i<chaine.getBlocs().size(); i++){
+			tab[i] = chaine.getBlocs().get(i);
+		}
+		return tab;
 	}
 	
 	/**
@@ -394,18 +433,38 @@ public class NoeudImpl
 		}
 	}
 	
-	public Bloc preuveDeTravaille(){
-		try{
-			TimeUnit.SECONDS.sleep((int)(Math.random()*(MAX_TEMPS - MIN_TEMPS) + MIN_TEMPS));
+	/**
+	 * Demande au serveur
+	 * @return la clé du serveur
+	 * @throws RemoteException
+	 */
+	public PublicKey demanderCle()
+			throws RemoteException{
+		return paireCles.getClePublic();
+	}
+	
+	/**
+	 * Demande les opérations du buffer
+	 * @return Les opérations du buffer
+	 * @throws RemoteException
+	 */
+	public Operation[] demanderOperations()
+			throws RemoteException{
+		Operation[] tab = new Operation[bufferOp.size()];
+		for(int i=0; i<bufferOp.size(); i++){
+			tab[i] = bufferOp.get(i);
 		}
-		catch(Exception e){
-			System.out.println(e);
-		}
-		return new Bloc(
-				chaine.dernierBloc().getIdB()+1,
-				(Operation[])bufferOp.toArray(),
-				chaine.dernierBloc().getHash(),
-				id);
+		return tab;
+	}
+	
+	/**
+	 * Demande l'id du serveur
+	 * @return
+	 * @throws RemoteException
+	 */
+	public int demanderId()
+			throws RemoteException{
+		return this.id;
 	}
 
 	/*********************/
@@ -420,7 +479,13 @@ public class NoeudImpl
 			Naming.rebind("rmi://" + this.adresse.getIp() + ":" + this.adresse.getPort() + "/Message" ,this);
 			System.out.println("Serveur pret");
 		}
-		catch (RemoteException re) {System.out.println(re);}
-		catch (MalformedURLException e) {System.out.println(e);}
+		catch (RemoteException re) {
+			System.out.println(re);
+			//System.exit(1);
+		}
+		catch (MalformedURLException e) {
+			System.out.println(e);
+			//System.exit(1);
+		}
 	}
 }

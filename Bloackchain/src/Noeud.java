@@ -52,4 +52,28 @@ public interface Noeud extends Remote{
 	 */
 	public void receptionCle(int id, PublicKey c)
 			throws RemoteException;
+	
+	/**
+	 * Demande au serveur
+	 * @return la clé du serveur
+	 * @throws RemoteException
+	 */
+	public PublicKey demanderCle()
+			throws RemoteException;
+	
+	/**
+	 * Demande les opérations du buffer
+	 * @return Les opérations du buffer
+	 * @throws RemoteException
+	 */
+	public Operation[] demanderOperations()
+			throws RemoteException;
+	
+	/**
+	 * Demande l'id du serveur
+	 * @return
+	 * @throws RemoteException
+	 */
+	public int demanderId()
+			throws RemoteException;
 }
