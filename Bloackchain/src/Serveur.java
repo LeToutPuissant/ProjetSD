@@ -21,6 +21,19 @@ public class Serveur{
 			/** Lancement du Serveur */
 			Naming.rebind("rmi://" + args[1] + ":" + args[2] + "/Message" ,objLocal) ;
 			System.out.println("Serveur pret") ;
+			
+			/*
+			// Version 3 : Désactivé
+			Thread t = new Thread(objLocal);
+			t.run();
+			Bloc bloc;
+			// On lance arbitrairement 15 itérations
+			for(int i=0; i<15; i++){
+				bloc = objLocal.preuveDeTravaille();
+				objlocal.receptionBloc(bloc);
+			}
+			*/
+			
 		}
 		catch (RemoteException re) { System.out.println(re) ; }
 		catch (MalformedURLException e) { System.out.println(e) ; }

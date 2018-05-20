@@ -57,9 +57,9 @@ public class Bloc implements Serializable{
 	}
 
 	public String str() {
-		String ops = op[0].toString();
+		String ops ="";
 		//On concatène les opérations en une seule String
-		for(int i = 1; i < op.length; i++) {
+		for(int i = 0; i < op.length; i++) {
 			ops += SEP + op[i];
 		}
 		return idB + ops + Arrays.toString(previousHash);

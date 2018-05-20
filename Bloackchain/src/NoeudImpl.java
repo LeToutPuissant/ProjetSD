@@ -1,6 +1,7 @@
 import java.rmi.server.UnicastRemoteObject ;
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -9,7 +10,7 @@ import java.security.PublicKey;
 
 public class NoeudImpl 
 	extends UnicastRemoteObject
-	implements Noeud{
+	implements Noeud, Runnable{
 	
 	/** Id du Noeud */
 	private int id;
@@ -34,6 +35,13 @@ public class NoeudImpl
 	
 	/** Paire de clé */
 	private Cles paireCles;
+	
+	/* Attribut pour la preuve de travaille */
+	/** Temps minimum d'attente */
+	private static final int MIN_TEMPS = 30;
+	/** Temps  maximal d'attente */
+	private static final int MAX_TEMPS = 180;
+	
 	
 	public NoeudImpl (int id, String ip, String port)
 		throws RemoteException{
@@ -385,5 +393,37 @@ public class NoeudImpl
 		if(ajouterCle(id,c)){
 			propagationCle(id, c);;
 		}
+	}
+	
+	
+	
+	public Bloc preuveDeTravaille(){
+		try{
+			TimeUnit.SECONDS.sleep((int)(Math.random()*(MAX_TEMPS - MIN_TEMPS) + MIN_TEMPS));
+		}
+		catch(Exception e){
+			System.out.println(e);
+		}
+		return new Bloc(
+				chaine.dernierBloc().getIdB()+1,
+				(Operation[])bufferOp.toArray(),
+				chaine.dernierBloc().getHash(),
+				id);
+	}
+
+	/*********************/
+	/* Fonction Runnable */
+	/*********************/
+	/**
+	 * Crée un thread. Ce thread lance le serveur.
+	 */
+	public void run(){
+		try{
+			/** Lancement du Serveur */
+			Naming.rebind("rmi://" + this.adresse.getIp() + ":" + this.adresse.getPort() + "/Message" ,this);
+			System.out.println("Serveur pret");
+		}
+		catch (RemoteException re) {System.out.println(re);}
+		catch (MalformedURLException e) {System.out.println(e);}
 	}
 }
